@@ -5,9 +5,9 @@ from django.contrib.auth.models import User
 
 class Block(models.Model):
 
-	start = models.DateTimeField()
-	end = models.DateTimeField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
 
-	name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
-	person = models.ForeignKey(User)
+    person = models.ForeignKey(User)
