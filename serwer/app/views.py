@@ -24,6 +24,24 @@ def register(request):
 
     return JsonResponse({"result": True})
 
+def login(request):
+
+    nickname = request.POST.get("nickname")
+
+    if not User.objects.filter(username=nickname).exists():
+        return JsonResponse({"result": False})
+
+    password = request.POST.get("password")
+
+
+    if not User.objects.get(username=nickname).check_password(password):
+        return JsonResponse({"result": False})
+
+    return JsonResponse({"result": True})
+
+
+
+
 def save_event_list(request):
     event_list = request.POST["event_list"]
     #print(repr(event_list))
@@ -33,3 +51,4 @@ def save_event_list(request):
 
 def get_windows(request):
     return JsonResponse({"Windows 10": False})
+

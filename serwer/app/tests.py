@@ -27,8 +27,26 @@ class GlobalTestCase(TestCase):
             User.objects.filter(username="asdf").exists()
         )
 
+    def test_login(self):
+        User.objects.create_user(username='jozef', password="joestar")
 
-    def test_get_widnows(self):
+        client = Client()
+
+        response = client.post('/login/',{
+            "nickname": "jozef",
+            "password": "jp2"
+        })
+        result = response.json()
+        self.assertFalse(result["result"])
+
+        response = client.post('/login/',{
+            "nickname": "jozef",
+            "password": "joestar"
+        })
+        result = response.json()
+        self.assertTrue(result["result"])
+
+    def test_get_windows(self):
 
         client = Client()
 
