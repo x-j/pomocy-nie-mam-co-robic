@@ -1,6 +1,12 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
+
+from app.views import find_windows
+from app.models import Block
+
 import json
+import arrow
+
 
 class GlobalTestCase(TestCase):
 
@@ -66,3 +72,45 @@ class GlobalTestCase(TestCase):
 
         json_data = json.dumps({})
         response = client.post('/save_timetable/', {'event_list': json_data})
+
+class WindowsTestCase(TestCase):
+
+    def test_main(self):
+
+        user1 = User.objects.create_user("u1")
+        user2 = User.objects.create_user("u2")
+
+        Block.objects.create(
+            person=user1,
+            start=arrow.get("2016-05-11 13:00:00").datetime,
+            end=arrow.get("2016-05-11 15:00:00").datetime
+        )
+
+        Block.objects.create(
+            person=user1,
+            start=arrow.get("2016-05-11 18:00:00").datetime,
+            end=arrow.get("2016-05-11 19:00:00").datetime
+        )
+
+
+        Block.objects.create(
+            person=user2,
+            start=arrow.get("2016-05-11 12:00:00").datetime,
+            end=arrow.get("2016-05-11 14:00:00").datetime
+        )
+
+        Block.objects.create(
+            person=user2,
+            start=arrow.get("2016-05-11 17:00:00").datetime,
+            end=arrow.get("2016-05-11 19:00:00").datetime
+        )
+
+        windows = find_windows("u1", "u2")
+
+        self.assertEqual(
+            windows[0]["start"], arrow.get("2016-05-11 15:00:00").datetime
+        )
+        self.assertEqual(
+            windows[0]["end"], arrow.get("2016-05-11 17:00:00").datetime
+        )
+

@@ -3,6 +3,46 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import json
 
+
+def find_windows(nick1, nick2):
+    user1 = User.objects.get(username=nick1)
+    user2 = User.objects.get(username=nick2)
+
+    blocks1 = user1.block_set.order_by("start").all()
+    blocks2 = user2.block_set.order_by("start").all()
+
+    flat_timeline = []
+
+    for block in blocks1:
+        flat_timeline.append((block.start, "start", 0))
+        flat_timeline.append((block.end, "end", 0))
+    for block in blocks2:
+        flat_timeline.append((block.start, "start", 1))
+        flat_timeline.append((block.end, "end", 1))
+
+    def get_first_el(tup):
+        return tup[0]
+
+    flat_timeline.sort(key=get_first_el)
+
+    windows = []
+    window_start = None
+    event_counter = [0, 0]
+
+    for t, flag, person in flat_timeline:
+        if flag == "start":
+            event_counter[person] += 1
+            if window_start and window_start.day == t.day:
+                window = {"start":window_start, "end":t}
+                windows.append(window)
+                window_start = None
+        else:
+            event_counter[person] -= 1
+            if event_counter == [0, 0]:
+                window_start = t
+
+    return windows
+
 def register(request):
 
     nickname = request.POST.get("nickname")
