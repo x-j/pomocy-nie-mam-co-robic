@@ -46,6 +46,13 @@ class GlobalTestCase(TestCase):
         result = response.json()
         self.assertTrue(result["result"])
 
+        response = client.post('/login/',{
+            "nickname": "100percentcoverage",
+            "password": "tbc"
+        })
+        result = response.json()
+        self.assertFalse(result["result"])
+
     def test_get_windows(self):
 
         client = Client()
