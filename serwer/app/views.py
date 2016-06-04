@@ -3,14 +3,26 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import json
 
-def is_available(request):
+def register(request):
 
-    nickname = request.GET.get("nickname")
+    nickname = request.POST.get("nickname")
 
-    result = False
     if User.objects.filter(username=nickname).exists():
-        result = True
-    return JsonResponse({"result": result})
+        return JsonResponse({"result": False})
+
+    name = request.POST.get("name")
+    name, surname = name.split(" ", maxsplit=1)
+    nickname = request.POST.get("nickname")
+    password = request.POST.get("password")
+
+    User.objects.create_user(
+        username=nickname,
+        password=password,
+        first_name=name,
+        last_name=surname
+    )
+
+    return JsonResponse({"result": True})
 
 def save_event_list(request):
     event_list = request.POST["event_list"]

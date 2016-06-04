@@ -4,18 +4,29 @@ import json
 
 class GlobalTestCase(TestCase):
 
-    def test_is_available(self):
-        User.objects.create_user('janek')
+    def test_register(self):
+        User.objects.create_user(username='janek')
 
         client = Client()
 
-        response = client.get('/is_available/', {"nickname": "asdf"})
+        response = client.post('/register/',{
+            "nickname": "janek"
+        })
         result = response.json()
         self.assertFalse(result["result"])
 
-        response = client.get('/is_available/', {"nickname": "janek"})
+        response = client.post('/register/',{
+            "name": "asdf asdf",
+            "password": "pass",
+            "nickname": "asdf"
+        })
         result = response.json()
         self.assertTrue(result["result"])
+
+        self.assertTrue(
+            User.objects.filter(username="asdf").exists()
+        )
+
 
     def test_get_widnows(self):
 
