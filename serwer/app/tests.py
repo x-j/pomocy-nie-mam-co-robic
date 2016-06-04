@@ -59,13 +59,6 @@ class GlobalTestCase(TestCase):
         result = response.json()
         self.assertFalse(result["result"])
 
-    def test_get_windows(self):
-
-        client = Client()
-
-        response = client.get('/get_windows/')
-
-
     def test_post(self):
 
         client = Client()
@@ -75,7 +68,7 @@ class GlobalTestCase(TestCase):
 
 class WindowsTestCase(TestCase):
 
-    def test_main(self):
+    def setUp(self):
 
         user1 = User.objects.create_user("u1")
         user2 = User.objects.create_user("u2")
@@ -105,6 +98,7 @@ class WindowsTestCase(TestCase):
             end=arrow.get("2016-05-11 19:00:00").datetime
         )
 
+    def test_find_windows(self):
         windows = find_windows("u1", "u2")
 
         self.assertEqual(
@@ -114,3 +108,19 @@ class WindowsTestCase(TestCase):
             windows[0]["end"], arrow.get("2016-05-11 17:00:00").datetime
         )
 
+    def test_get_windows(self):
+
+        client = Client()
+
+        args = {"user1": "u1", "user2": "u2"}
+
+        response = client.get("/get_windows/", args)
+        result = response.json()
+
+        self.assertEqual(
+            result["windows"],
+            [{
+                "start": "2016-05-11T15:00:00Z",
+                "end": "2016-05-11T17:00:00Z"
+            }]
+        )

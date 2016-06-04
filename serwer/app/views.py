@@ -43,6 +43,15 @@ def find_windows(nick1, nick2):
 
     return windows
 
+def get_windows(request):
+    user1 = request.GET.get("user1")
+    user2 = request.GET.get("user2")
+
+    windows = find_windows(user1, user2)
+
+    return JsonResponse({"windows": windows})
+
+
 def register(request):
 
     nickname = request.POST.get("nickname")
@@ -88,7 +97,4 @@ def save_event_list(request):
     event_list = json.loads(event_list)
     #print(event_list)
     return JsonResponse({"ASdf": 123})
-
-def get_windows(request):
-    return JsonResponse({"Windows 10": False})
 

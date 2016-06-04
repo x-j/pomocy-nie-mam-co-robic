@@ -7,4 +7,5 @@ urlpatterns = [
     url(r'^get_windows/', get_windows),
     url(r'^register/', register),
     url(r'^login/', login),
+    url(r'^get_windows/', get_windows),
 ]
