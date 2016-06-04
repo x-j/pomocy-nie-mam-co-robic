@@ -44,8 +44,8 @@ def find_windows(nick1, nick2):
     return windows
 
 def get_windows(request):
-    user1 = request.GET.get("user1")
-    user2 = request.GET.get("user2")
+    user1 = request.GET.get("user1").strip()
+    user2 = request.GET.get("user2").strip()
 
     windows = find_windows(user1, user2)
 
@@ -54,15 +54,15 @@ def get_windows(request):
 
 def register(request):
 
-    nickname = request.POST.get("nickname")
+    nickname = request.POST.get("nickname").strip()
 
     if User.objects.filter(username=nickname).exists():
         return JsonResponse({"result": False})
 
-    name = request.POST.get("name")
+    name = request.POST.get("name").strip()
     name, surname = name.split(" ", maxsplit=1)
-    nickname = request.POST.get("nickname")
-    password = request.POST.get("password")
+    nickname = request.POST.get("nickname").strip()
+    password = request.POST.get("password").strip()
 
     User.objects.create_user(
         username=nickname,
@@ -75,12 +75,12 @@ def register(request):
 
 def login(request):
 
-    nickname = request.POST.get("nickname")
+    nickname = request.POST.get("nickname").strip()
 
     if not User.objects.filter(username=nickname).exists():
         return JsonResponse({"result": False})
 
-    password = request.POST.get("password")
+    password = request.POST.get("password").strip()
 
 
     if not User.objects.get(username=nickname).check_password(password):
