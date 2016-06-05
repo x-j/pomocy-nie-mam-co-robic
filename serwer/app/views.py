@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from .models import Block
+from .models import Block, Zaczepka
 from django.http import JsonResponse
 from django.http import HttpResponse
 import json
@@ -132,3 +132,25 @@ def get_my_blocks(request):
     print("wysylam bloczki uzytkownikowi {}".format(nickname))
     print({"blocks": lista})
     return JsonResponse({"blocks": lista})
+
+def check_zaczepkas(request):
+    nickname = request.GET.get("nickname").strip()
+    zaczepki = Zaczepka.objects.all()
+    print(zaczepki.filter(receiver=nickname).exists())
+
+def list_zaczepkas(request):
+    nickname = request.GET.get("nickname").strip()
+    zaczepki = zaczepka_set.order_by("receiver").all()
+    print(zaczepki.filter(receiver=nickname))
+
+def add_zaczepkas(request):
+    sender = request.POST["nickname"]
+    receiver = request.POST["friend"]
+    okienko = request.POST["event"]
+    okienko = json.loads(okienko)
+    hate_mail = request.POST["hate_mail"]
+    print(hate_mail)
+    print(okienko)
+    c = Zaczepka.objects.create(sender=sender, receiver=receiver, hate_mail=hate_mail, start=okienko["start"], end=okienko["end"])
+    c.save
+    return JsonResponse({"result": True})
