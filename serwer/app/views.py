@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from .models import Block
 from django.http import JsonResponse
+from django.http import HttpResponse
 import json
 
 
@@ -57,6 +59,7 @@ def register(request):
     nickname = request.POST.get("nickname").strip()
 
     if User.objects.filter(username=nickname).exists():
+        print("FUG :DDDD")
         return JsonResponse({"result": False})
 
     name = request.POST.get("name").strip()
@@ -71,6 +74,7 @@ def register(request):
         last_name=surname
     )
 
+    print("nice memes")
     return JsonResponse({"result": True})
 
 def login(request):
@@ -89,12 +93,20 @@ def login(request):
     return JsonResponse({"result": True})
 
 
-
-
 def save_event_list(request):
     event_list = request.POST["event_list"]
+    username = request.POST["nickname"]
     #print(repr(event_list))
+    print(repr(username))
     event_list = json.loads(event_list)
-    #print(event_list)
-    return JsonResponse({"ASdf": 123})
+    
+    for block in event_list:
+        #print(repr(block))
+        c = Block.objects.create(person=User.objects.get(username=username), start=block["start_date"], end=block["end_date"], name=block["description"])
+        c.save
+
+    #return JsonResponse({"Result": 1})
+    return HttpResponse("1")
+
+
 
