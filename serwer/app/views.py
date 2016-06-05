@@ -35,7 +35,7 @@ def find_windows(nick1, nick2):
         if flag == "start":
             event_counter[person] += 1
             if window_start and window_start.day == t.day:
-                window = {"start":window_start, "end":t}
+                window = {"start":str(window_start), "end":str(t)}
                 windows.append(window)
                 window_start = None
         else:
@@ -49,9 +49,22 @@ def get_windows(request):
     user1 = request.GET.get("user1").strip()
     user2 = request.GET.get("user2").strip()
 
+    #windows = find_windows(user1, user2)
+
+    #return JsonResponse({"windows": windows})
+
+    #user1 = request.POST["user1"]
+    #user2 = request.POST["user2"]
+
+    print(user1)
+    print(user2)
+
     windows = find_windows(user1, user2)
 
+    #print(json.dumps({"windows": windows}))
+
     return JsonResponse({"windows": windows})
+
 
 
 def register(request):
@@ -82,12 +95,14 @@ def login(request):
     nickname = request.POST.get("nickname").strip()
 
     if not User.objects.filter(username=nickname).exists():
+        print("NIE MA TAKIEGO XD")
         return JsonResponse({"result": False})
 
     password = request.POST.get("password").strip()
 
 
     if not User.objects.get(username=nickname).check_password(password):
+        print("SWORDFISH")
         return JsonResponse({"result": False})
 
     return JsonResponse({"result": True})
@@ -96,12 +111,10 @@ def login(request):
 def save_event_list(request):
     event_list = request.POST["event_list"]
     username = request.POST["nickname"]
-    #print(repr(event_list))
     print(repr(username))
     event_list = json.loads(event_list)
     
     for block in event_list:
-        #print(repr(block))
         c = Block.objects.create(person=User.objects.get(username=username), start=block["start_date"], end=block["end_date"], name=block["description"])
         c.save
 
