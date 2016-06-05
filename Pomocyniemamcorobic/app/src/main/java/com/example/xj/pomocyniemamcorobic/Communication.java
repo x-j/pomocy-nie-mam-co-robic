@@ -27,10 +27,14 @@ import cz.msebera.android.httpclient.client.ResponseHandler;
  */
 public class Communication {
 
-    private static final String URL = "http://192.168.43.25:8000";
+    private static String URL = "http://192.168.43.25:8000";
 
-    public static AsyncHttpClient syncHttpClient = new SyncHttpClient();
     public static AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    public static AsyncHttpClient syncHttpClient = new SyncHttpClient();
+
+    public static void setIP(String url) {
+        URL = url;
+    }
 
     public static void get(String url, RequestParams params, AsyncHttpResponseHandler responseHandler) {
         getClient().get(getAbsoluteUrl(url), params, responseHandler);
@@ -158,7 +162,7 @@ public class Communication {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
-                received[0] = new String(rawJsonData);
+                received[0] = null;
             }
 
             @Override
@@ -245,6 +249,85 @@ public class Communication {
         Communication.post("/login/", params, baseJsonHttpResponseHandler);
 
         return poop[0];
+
+    }
+
+    public static boolean sendHateMail(String nickname, String friend, JSONObject jsonObject, String hateMail) {
+
+        RequestParams params = new RequestParams();
+        params.put("nickname", nickname.trim());
+        params.put("friend", friend.trim());
+        params.put("event", jsonObject);
+        params.put("hate_mail", hateMail);
+
+        final boolean poop[] = new boolean[1];
+
+        BaseJsonHttpResponseHandler baseJsonHttpResponseHandler = new BaseJsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
+                JSONObject object = null;
+                try {
+                    object = new JSONObject(rawJsonResponse);
+                    poop[0] = (boolean) object.get("result");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
+                JSONObject object = null;
+                try {
+                    object = new JSONObject(rawJsonData);
+                    poop[0] = (boolean) object.get("result");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
+                if (isFailure) return null;
+                else {
+                    JSONObject jsonObject = new JSONObject(rawJsonData);
+                    String raw = rawJsonData;
+                    if (raw.contains("true")) poop[0] = true;
+                    return (jsonObject.get("result").equals("true"));
+                }
+            }
+        };
+        Communication.post("/send_hate_mail/", params, baseJsonHttpResponseHandler);
+
+        return poop[0];
+
+    }
+
+    public static String checkHateMail(String nickname) {
+
+        RequestParams params = new RequestParams();
+        params.put("nickname", nickname.trim());
+
+        final String[] received = new String[1];
+
+        BaseJsonHttpResponseHandler baseJsonHttpResponseHandler = new BaseJsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String rawJsonResponse, Object response) {
+                received[0] = new String(rawJsonResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, String rawJsonData, Object errorResponse) {
+                received[0] = new String(rawJsonData);
+            }
+
+            @Override
+            protected Object parseResponse(String rawJsonData, boolean isFailure) throws Throwable {
+                return new String(rawJsonData);
+            }
+        };
+        get("/get_zaczepkas/", params, baseJsonHttpResponseHandler);
+
+        return received[0];
 
     }
 }

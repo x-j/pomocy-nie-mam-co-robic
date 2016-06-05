@@ -42,23 +42,23 @@ public class ActivityDetailsEntryActivity extends AppCompatActivity {
 
         boolean cancel = false;
 
-        if(odField.getText().toString().isEmpty()){
+        if (odField.getText().toString().isEmpty()) {
             odField.setError("Proszę daj coś tu.");
             odField.requestFocus();
             cancel = true;
         }
-        if(doField.getText().toString().isEmpty()){
+        if (doField.getText().toString().isEmpty()) {
             doField.setError("Proszę daj coś tu.");
             doField.requestFocus();
             cancel = true;
         }
-        if (dayField.getText().toString().isEmpty()){
+        if (dayField.getText().toString().isEmpty()) {
             dayField.setError("prosze daj coś tu");
             dayField.requestFocus();
             cancel = true;
         }
 
-        if(cancel) return;
+        if (cancel) return;
 
         Excuse excuse = new Excuse();
 
@@ -73,33 +73,40 @@ public class ActivityDetailsEntryActivity extends AppCompatActivity {
         Date beginDate = new Date(intvals[0], intvals[1], intvals[2], Integer.parseInt(odField.getText().toString().split(":")[0]),
                 Integer.parseInt(odField.getText().toString().split(":")[1]));
 
-        excuse.begin = beginDate;
-
         Date endDate = new Date(intvals[0], intvals[1], intvals[2], Integer.parseInt(doField.getText().toString().split(":")[0]),
                 Integer.parseInt(doField.getText().toString().split(":")[1]));
 
-        excuse.end = endDate;
+        if (beginDate.after(endDate)) {
+            doField.setError("Błąd: koniec nie może być przed początkiem");
+        } else {
 
-        MyCalendar.content.add(excuse);
 
-        Snackbar.make(view, "Dodano! :))))", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+            excuse.begin = beginDate;
+            excuse.end = endDate;
 
-        SendTimetableTask task =  new SendTimetableTask();
-        task.execute(MyCalendar.nickname);
-        int result = 0;
-        try {
-            result = task.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            MyCalendar.content.add(excuse);
+
+            Snackbar.make(view, "Dodano! :))))", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+
+            SendTimetableTask task = new SendTimetableTask();
+            task.execute(MyCalendar.nickname);
+            int result = 0;
+            try {
+                result = task.get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            if (result == 1)
+                Toast.makeText(this, "Kalendarz zaktualizowany", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, "Coś poszło nie tak w trakcie aktualizacji", Toast.LENGTH_SHORT).show();
+
+            super.onBackPressed();
+            return;
         }
-
-        if (result == 1) Toast.makeText(this, "Kalendarz zaktualizowany", Toast.LENGTH_SHORT).show();
-        else Toast.makeText(this, "Coś poszło nie tak w trakcie aktualizacji", Toast.LENGTH_SHORT).show();
-
-        super.onBackPressed();
-        return;
     }
 
     public void wrucButton_onClick(View view) {

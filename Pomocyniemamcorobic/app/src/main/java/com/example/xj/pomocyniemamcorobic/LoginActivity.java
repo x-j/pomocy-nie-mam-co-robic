@@ -1,9 +1,12 @@
 package com.example.xj.pomocyniemamcorobic;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,7 +14,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
-import android.widget.Toast;
 
 /**
  * A login screen that offers login via email/password.
@@ -61,6 +63,26 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         mLoginFormView = findViewById(R.id.login_form);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Proszę podaj IP serwera :)))");
+        final EditText input = new EditText(getBaseContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);////
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String text = input.getText().toString();
+                if(text.isEmpty() || text.split(".").length != 4) input.setError("");
+                else Communication.setIP( input.getText().toString());
+            }
+        });
+
+        builder.show();
+
     }
 
     private void attemptLogin() {
