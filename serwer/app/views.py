@@ -35,7 +35,7 @@ def find_windows(nick1, nick2):
         if flag == "start":
             event_counter[person] += 1
             if window_start and window_start.day == t.day:
-                window = {"start":str(window_start), "end":str(t)}
+                window = {"start":str(window_start), "end":str(t), "length":str(t - window_start)}
                 windows.append(window)
                 window_start = None
         else:
@@ -49,19 +49,12 @@ def get_windows(request):
     user1 = request.GET.get("user1").strip()
     user2 = request.GET.get("user2").strip()
 
-    #windows = find_windows(user1, user2)
-
-    #return JsonResponse({"windows": windows})
-
-    #user1 = request.POST["user1"]
-    #user2 = request.POST["user2"]
-
     print(user1)
     print(user2)
 
     windows = find_windows(user1, user2)
 
-    #print(json.dumps({"windows": windows}))
+    print(json.dumps({"windows": windows}))
 
     return JsonResponse({"windows": windows})
 
@@ -122,4 +115,20 @@ def save_event_list(request):
     return HttpResponse("1")
 
 
+def get_my_blocks(request):
 
+    nickname = request.GET.get("nickname").strip()
+
+    logged_user = User.objects.get(username=nickname)
+
+    user_blocks = logged_user.block_set.order_by("start").all()
+
+    lista = []
+
+    for obiekt in user_blocks:
+        slownik = {"start": str(obiekt.start), "end": str(obiekt.end), "description": str(obiekt.name), "length": str(obiekt.end - obiekt.start)}
+        lista.append(slownik)
+
+    print("wysylam bloczki uzytkownikowi {}".format(nickname))
+    print({"blocks": lista})
+    return JsonResponse({"blocks": lista})
